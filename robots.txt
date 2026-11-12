@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+# Source files and working documents. Better still, don't upload these folders at all.
+Disallow: /assets/clinic_photos/
+Disallow: /assets/logos/
+Disallow: /seo/
+
+Sitemap: https://www.example.com/sitemap.xml

@@ -1,0 +1,22 @@
+# Response headers for Cloudflare Pages and Netlify (both read this file).
+# Both hosts compress HTML, CSS and JS automatically (Brotli or gzip).
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Photos and logos rarely change. If you replace one, give it a new filename.
+/assets/*
+  Cache-Control: public, max-age=2592000
+
+# File names don't change between versions, so keep these short.
+/css/*
+  Cache-Control: public, max-age=86400
+/js/*
+  Cache-Control: public, max-age=86400
+
+/seo/*
+  X-Robots-Tag: noindex
+/README.md
+  X-Robots-Tag: noindex

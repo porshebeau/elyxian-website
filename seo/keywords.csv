@@ -1,0 +1,43 @@
+Target search phrase,Page,Type,Priority (3 high - 1 low),Status (1-5),Topic cluster,Monthly search volume,CPC low (INR),CPC high (INR),Notes
+dentist in lajpat nagar,/,Landing,3,4,Clinic,,,,Main local keyword. Also needs the Google Business Profile.
+dental clinic in lajpat nagar,/,Landing,3,4,Clinic,,,,
+best dentist in lajpat nagar,/,Landing,2,4,Clinic,,,,Ranks through reviews and the Business Profile. Never write 'best' on the site (DCI).
+dentist near lajpat nagar metro,/book.html,Landing,2,4,Clinic,,,,Fill in the metro gate and walking time on the Visit Us section.
+dentist in south delhi,/,Landing,2,4,Clinic,,,,Competitive. Comes with authority over time.
+dentist in defence colony,/,Landing,1,1,Clinic,,,,Nearby area. Don't build near-duplicate area pages (doorway pages). Earn it through the Business Profile and reviews.
+dentist in amar colony,/,Landing,1,1,Clinic,,,,As above
+dental check up in lajpat nagar,/treatments/general-dentistry/,Landing,2,4,General,,,,
+teeth cleaning in lajpat nagar,/treatments/general-dentistry/,Landing,2,4,General,,,,
+scaling and polishing in delhi,/treatments/general-dentistry/,Landing,1,4,General,,,,
+cosmetic dentist in south delhi,/treatments/cosmetic-dentistry/,Landing,2,4,Cosmetic,,,,
+teeth whitening in lajpat nagar,/treatments/cosmetic-dentistry/,Landing,3,4,Cosmetic,,,,Whitening may deserve its own page once the clinic confirms it offers it.
+veneers in delhi,/treatments/cosmetic-dentistry/,Landing,2,4,Cosmetic,,,,
+dental implants in lajpat nagar,/treatments/dental-implants/,Landing,3,4,Implants,,,,High value. Expect a high CPC.
+dental implants in south delhi,/treatments/dental-implants/,Landing,3,4,Implants,,,,
+root canal treatment in lajpat nagar,/treatments/root-canal-treatment/,Landing,3,4,Root canal,,,,
+rct treatment in south delhi,/treatments/root-canal-treatment/,Landing,2,4,Root canal,,,,'RCT' is a common search term in India. Use it once on the page if the doctor agrees.
+braces in lajpat nagar,/treatments/braces-and-aligners/,Landing,3,4,Orthodontics,,,,
+clear aligners in south delhi,/treatments/braces-and-aligners/,Landing,2,4,Orthodontics,,,,
+orthodontist in lajpat nagar,/treatments/braces-and-aligners/,Landing,2,4,Orthodontics,,,,Use 'orthodontist' only if the treating dentist holds an MDS in orthodontics.
+pediatric dentist in lajpat nagar,/treatments/childrens-dentistry/,Landing,3,4,Children,,,,Most Indian searches use the US spelling 'pediatric'. The site uses 'paediatric'.
+kids dentist in south delhi,/treatments/childrens-dentistry/,Landing,2,4,Children,,,,
+emergency dentist in lajpat nagar,/book.html#emergency,Landing,2,1,Emergency,,,,Target this only once after-hours arrangements are confirmed.
+dental implant cost in delhi,(blog),Blog,2,1,Implants,,,,Large search volume. Explain what affects cost without advertising prices. Check against DCI rules.
+root canal treatment cost in delhi,(blog),Blog,2,1,Root canal,,,,As above
+is root canal treatment painful,(blog),Blog,3,1,Root canal,,,,Link to /treatments/root-canal-treatment/
+root canal vs tooth extraction,(blog),Blog,2,1,Root canal,,,,
+how long do dental implants last,(blog),Blog,2,1,Implants,,,,
+dental implant vs bridge,(blog),Blog,3,1,Implants,,,,
+braces vs clear aligners,(blog),Blog,3,1,Orthodontics,,,,
+how to clean teeth with braces,(blog),Blog,1,1,Orthodontics,,,,
+teeth whitening side effects,(blog),Blog,2,1,Cosmetic,,,,
+does charcoal toothpaste whiten teeth,(blog),Blog,1,1,Cosmetic,,,,
+why do my gums bleed when i brush,(blog),Blog,2,1,General,,,,
+sensitive teeth causes and treatment,(blog),Blog,2,1,General,,,,
+how often should you visit the dentist,(blog),Blog,1,1,General,,,,
+when should a child first see a dentist,(blog),Blog,2,1,Children,,,,
+cavities in baby teeth,(blog),Blog,2,1,Children,,,,
+what to do if a tooth is knocked out,(blog),Blog,2,1,Emergency,,,,
+dental care during pregnancy,(blog),Blog,1,1,General,,,,
+diabetes and gum disease,(blog),Blog,1,1,General,,,,
+how to overcome fear of the dentist,(blog),Blog,2,1,General,,,,Matches the site's central idea: you always know what happens next.
