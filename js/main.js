@@ -29,8 +29,9 @@ const CLINIC = {
   longitude: "[PLACEHOLDER] 77.2433",
 
   phone: "[PLACEHOLDER] +91 00000 00000",
-  whatsapp: "[PLACEHOLDER] 910000000000", // digits only, with country code
+  whatsapp: "[PLACEHOLDER] 910000000000", // digits with country code (e.g. 919810000000)
   email: "[PLACEHOLDER] hello@example.com",
+  submitWebhookUrl: "", // Optional: URL to send JSON consultation leads in the background (e.g. Formspree/Make/Apps Script)
 
   hours: [
     { days: "[PLACEHOLDER] Monday to Saturday", time: "[PLACEHOLDER] 10:00 am to 7:00 pm" },
@@ -101,9 +102,10 @@ const CLINIC = {
     });
   });
 
-  const whatsappReady = !isPlaceholder(CLINIC.whatsapp);
+  const whatsappDigits = clean(CLINIC.whatsapp).replace(/\D/g, "");
+  const whatsappReady = !isPlaceholder(CLINIC.whatsapp) && whatsappDigits.length >= 10;
   function whatsappUrl(text) {
-    const base = whatsappReady ? `https://wa.me/${CLINIC.whatsapp}` : "https://wa.me/";
+    const base = whatsappReady ? `https://wa.me/${whatsappDigits}` : "https://wa.me/";
     return `${base}?text=${encodeURIComponent(text)}`;
   }
   const phoneHref = `tel:${clean(CLINIC.phone).replace(/[^+\d]/g, "")}`;
@@ -488,6 +490,26 @@ const CLINIC = {
     fields.treatment.value = preselect;
   }
 
+  // Restore draft if saved previously
+  try {
+    const draft = JSON.parse(localStorage.getItem("elyxian_booking_draft") || "{}");
+    if (draft.name && !fields.name.value) fields.name.value = draft.name;
+    if (draft.phone && !fields.phone.value) fields.phone.value = draft.phone;
+    if (draft.treatment && !preselect && Array.from(fields.treatment.options).some((o) => o.value === draft.treatment)) {
+      fields.treatment.value = draft.treatment;
+    }
+  } catch (_) {}
+
+  function saveDraft() {
+    try {
+      localStorage.setItem("elyxian_booking_draft", JSON.stringify({
+        name: fields.name.value,
+        phone: fields.phone.value,
+        treatment: fields.treatment.value
+      }));
+    } catch (_) {}
+  }
+
   const rules = {
     name: (v) => (v.trim().length >= 2 ? "" : "Please enter your name."),
     phone: (v) => {
@@ -501,9 +523,24 @@ const CLINIC = {
       if (CLINIC.closedDays.includes(date.getDay())) {
         return `The clinic is closed on ${date.toLocaleDateString("en-IN", { weekday: "long" })}s. Please choose another day.`;
       }
+      if (v === today && now.getHours() >= 19) {
+        return "Clinic hours for today have ended (closed at 7:00 pm). Please choose tomorrow or a later date.";
+      }
       return "";
     },
-    time: (v) => (v ? "" : "Please choose a time of day."),
+    time: (v) => {
+      if (!v) return "Please choose a time of day.";
+      if (fields.date.value === today) {
+        const h = now.getHours();
+        if (v.startsWith("Morning") && h >= 13) {
+          return "Morning hours (10 am to 1 pm) have passed for today. Please pick an afternoon or evening time.";
+        }
+        if (v.startsWith("Afternoon") && h >= 16) {
+          return "Afternoon hours (1 pm to 4 pm) have passed for today. Please pick an evening time.";
+        }
+      }
+      return "";
+    },
     treatment: (v) => (v ? "" : "Please choose an option. “Not sure yet” is fine."),
     consent: (_, el) => (el.checked ? "" : "Please tick this box so the clinic may use these details to contact you.")
   };
@@ -522,9 +559,19 @@ const CLINIC = {
   Object.keys(rules).forEach((key) => {
     const el = fields[key];
     // Correct errors as soon as they are fixed, but don't scold while someone is still typing
-    el.addEventListener("input", () => { if (el.getAttribute("aria-invalid")) check(key); });
-    el.addEventListener("change", () => { if (el.type !== "text" && el.type !== "tel") check(key); });
+    el.addEventListener("input", () => {
+      if (el.getAttribute("aria-invalid")) check(key);
+      if (key === "name" || key === "phone" || key === "treatment") saveDraft();
+    });
+    el.addEventListener("change", () => {
+      if (el.type !== "text" && el.type !== "tel") check(key);
+      if (key === "treatment") saveDraft();
+    });
     el.addEventListener("blur", () => { if (el.value && el.type !== "checkbox") check(key); });
+  });
+
+  fields.date.addEventListener("change", () => {
+    if (fields.time.value) check("time");
   });
 
   form.addEventListener("input", () => { result.hidden = true; });
@@ -534,15 +581,15 @@ const CLINIC = {
       weekday: "long", day: "numeric", month: "long", year: "numeric"
     });
     const lines = [
-      `Hello ${CLINIC.name}, I would like to request a consultation.`,
+      `*Consultation Request — ${CLINIC.name}*`,
       "",
-      `Name: ${fields.name.value.trim()}`,
-      `Phone: ${fields.phone.value.trim()}`,
-      `Preferred date: ${date}`,
-      `Preferred time: ${fields.time.value}`,
-      `Interested in: ${fields.treatment.selectedOptions[0].text}`
+      `*Name:* ${fields.name.value.trim()}`,
+      `*Phone:* ${fields.phone.value.trim()}`,
+      `*Preferred date:* ${date}`,
+      `*Preferred time:* ${fields.time.value}`,
+      `*Interested in:* ${fields.treatment.selectedOptions[0].text}`
     ];
-    if (fields.message.value.trim()) lines.push(`Message: ${fields.message.value.trim()}`);
+    if (fields.message.value.trim()) lines.push(`*Notes:* ${fields.message.value.trim()}`);
     return lines.join("\n");
   }
 
@@ -565,8 +612,38 @@ const CLINIC = {
     result.hidden = false;
     result.focus();
 
-    // Without a real number there is nobody to send to, so the panel shows the message instead
-    if (whatsappReady) window.open(url, "_blank", "noopener");
+    // Send to optional background webhook if configured (prevents lead loss)
+    if (CLINIC.submitWebhookUrl && !isPlaceholder(CLINIC.submitWebhookUrl)) {
+      try {
+        fetch(clean(CLINIC.submitWebhookUrl), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({
+            name: fields.name.value.trim(),
+            phone: fields.phone.value.trim(),
+            date: fields.date.value,
+            time: fields.time.value,
+            treatment: fields.treatment.value,
+            message: fields.message.value.trim(),
+            timestamp: new Date().toISOString()
+          })
+        }).catch((err) => console.warn("Webhook submit failed:", err));
+      } catch (_) {}
+    }
+
+    // Clear saved draft on successful submit
+    try { localStorage.removeItem("elyxian_booking_draft"); } catch (_) {}
+
+    // Open WhatsApp smoothly
+    if (whatsappReady) {
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = url;
+      } else {
+        const win = window.open(url, "_blank", "noopener");
+        if (!win) window.location.href = url;
+      }
+    }
   });
 
   $("#copy-message").addEventListener("click", async () => {
