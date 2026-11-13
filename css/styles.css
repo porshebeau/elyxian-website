@@ -139,12 +139,6 @@ dd.ph, p.ph, address.ph { width: fit-content; }
 }
 
 /* 4. Components ----------------------------------------------------------- */
-/* Demo strip */
-.demo-strip {
-  background: var(--paper-deep); color: var(--ink-soft); border-bottom: 1px solid var(--line);
-  font-size: .8125rem; line-height: 1.4; padding: var(--s2) var(--gutter); text-align: center;
-}
-
 /* Logo */
 .brand { display: inline-flex; padding-block: var(--s2); }
 .brand img { height: 2.875rem; width: auto; }
@@ -394,7 +388,6 @@ input:hover, select:hover, textarea:hover { border-color: var(--ink); }
   font: 400 var(--t-small)/1.6 var(--sans); white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .result .btn-row { margin-top: var(--s4); }
-.result .demo-note { margin-top: var(--s3); font-size: var(--t-small); color: var(--ink-soft); }
 
 /* Numbered steps */
 .mini-steps { counter-reset: mini; display: grid; gap: var(--s4); }
@@ -632,6 +625,6 @@ input:hover, select:hover, textarea:hover { border-color: var(--ink); }
 }
 
 @media print {
-  .site-header, .action-bar, .wa-float, .demo-strip, .closing { display: none; }
+  .site-header, .action-bar, .wa-float, .closing { display: none; }
   body { padding: 0; }
 }

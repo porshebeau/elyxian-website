@@ -6,4 +6,4 @@ Disallow: /assets/logos/
 Disallow: /seo/
 Disallow: /.agents/
 
-Sitemap: https://elyxianstudio.com/sitemap.xml
+Sitemap: https://www.elyxianstudio.com/sitemap.xml

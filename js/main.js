@@ -1,68 +1,57 @@
 /* ==========================================================================
    CLINIC DETAILS: edit everything here, in one place.
 
-   A value starting with "[PLACEHOLDER]" is unconfirmed. It displays without
-   that prefix, with a soft highlight, so it is easy to spot on the page.
-   When you have the real value, replace the whole string and drop the prefix.
+   A value starting with "[PLACEHOLDER]" is treated as unconfirmed: it displays
+   without that prefix, with a soft highlight. All current values are confirmed.
 
    Page titles, meta tags, canonical URLs, robots.txt and sitemap.xml cannot
    be set from here. README.md lists them.
    ========================================================================== */
 const CLINIC = {
-  demoMode: true, // false removes the demo strip
-
   name: "Elyxian Dental & Smile Studio",
-  url: "https://elyxianstudio.com/",
+  url: "https://www.elyxianstudio.com/",
 
-  doctorName: "Dr. Komal Sharma",
-  doctorQualifications: "[PLACEHOLDER] BDS, MDS (speciality), university",
-  doctorSpecialisation: "[PLACEHOLDER] Area of specialisation",
-  doctorRegistration: "[PLACEHOLDER] Delhi Dental Council Reg. No. 00000",
-  doctorNote: "[PLACEHOLDER] A few lines in the doctor’s own words: why they practise, and how they like to work with the people they treat.",
+  doctorName: "Dr. Komall Sharma",
+  doctorRole: "Founder & Director",
+  doctorSpecialisation: "Periodontologist, Implantologist, Dental Surgeon",
 
-  addressLine: "[PLACEHOLDER] Building and street",
-  locality: "Lajpat Nagar",
+  addressLine: "G-6 Basement (B2)",
+  locality: "Lajpat Nagar 3",
   city: "New Delhi",
   region: "Delhi",
-  postalCode: "[PLACEHOLDER] 110024",
-  latitude: "[PLACEHOLDER] 28.5677",
-  longitude: "[PLACEHOLDER] 77.2433",
+  postalCode: "110024",
 
-  phone: "[PLACEHOLDER] +91 00000 00000",
-  whatsapp: "[PLACEHOLDER] 910000000000", // digits with country code (e.g. 919810000000)
-  email: "[PLACEHOLDER] hello@example.com",
-  submitWebhookUrl: "", // Optional: URL to send JSON consultation leads in the background (e.g. Formspree/Make/Apps Script)
+  phone: "+91 93111 32530",
+  landline: "011 4508 0328",
+  landlineDial: "+911145080328",
+  whatsapp: "919311132530", // digits with country code (e.g. 919810000000)
+  email: "elyxianstudio@gmail.com",
+  // Every booking request is also emailed to the clinic through FormSubmit.
+  // The first request triggers a one-time activation email to the address above: click the link in it.
+  submitWebhookUrl: "https://formsubmit.co/ajax/elyxianstudio@gmail.com",
 
   hours: [
-    { days: "[PLACEHOLDER] Monday to Saturday", time: "[PLACEHOLDER] 10:00 am to 7:00 pm" },
-    { days: "[PLACEHOLDER] Sunday", time: "[PLACEHOLDER] Closed" }
+    { days: "Monday to Saturday", time: "10:00 am to 7:00 pm" },
+    { days: "Sunday", time: "Closed" }
   ],
-  openingHoursSchema: "[PLACEHOLDER] Mo-Sa 10:00-19:00", // same hours, for search engines
+  openingHoursSchema: "Mo-Sa 10:00-19:00", // same hours, for search engines
   closedDays: [0], // 0 = Sunday ... 6 = Saturday; the date field rejects these
   timeWindows: ["Morning (10 am to 1 pm)", "Afternoon (1 pm to 4 pm)", "Evening (4 pm to 7 pm)"],
-  firstVisitLength: "[PLACEHOLDER] about 45 minutes",
 
-  landmark: "[PLACEHOLDER] Nearest landmark, for example a market or a well-known building",
-  metro: "[PLACEHOLDER] Lajpat Nagar Metro (Violet and Pink Lines), gate and walking time to confirm",
-  parking: "[PLACEHOLDER] Where to park, and whether a space can be reserved",
-  accessibility: "[PLACEHOLDER] Step-free entry, lift and wheelchair access to confirm",
-  mapEmbedUrl: "[PLACEHOLDER] https://www.google.com/maps?q=Lajpat+Nagar,+New+Delhi&output=embed",
-  mapLinkUrl: "[PLACEHOLDER] https://www.google.com/maps/search/?api=1&query=Lajpat+Nagar,+New+Delhi",
+  metro: "Lajpat Nagar Metro (Violet and Pink Lines)",
+  mapEmbedUrl: "https://www.google.com/maps?q=G-6+Basement,+Lajpat+Nagar+3,+New+Delhi+110024&output=embed",
+  mapLinkUrl: "https://www.google.com/maps/search/?api=1&query=Elyxian+Dental+%26+Smile+Studio,+G-6,+Lajpat+Nagar+3,+New+Delhi+110024",
 
-  payment: "[PLACEHOLDER] UPI, debit and credit cards, and EMI through selected banks",
-  afterHours: "[PLACEHOLDER] Outside clinic hours, send a WhatsApp message and the clinic will reply at the earliest opening.",
+  afterHours: "Outside clinic hours, send a WhatsApp message and the clinic will reply at the earliest opening.",
 
   // For search engines only (structured data). List the clinic's public profiles:
-  // Google Business Profile, Practo, Justdial, Instagram and so on. Placeholders are skipped.
+  // Google Business Profile, Practo, Justdial, Instagram and so on.
   areaServed: ["Lajpat Nagar", "South Delhi", "New Delhi"],
-  profiles: [
-    "[PLACEHOLDER] https://g.page/your-google-business-profile",
-    "[PLACEHOLDER] https://www.practo.com/delhi/clinic/your-clinic"
-  ],
+  profiles: [],
 
-  grievanceOfficer: "[PLACEHOLDER] Name of grievance officer",
-  grievanceEmail: "[PLACEHOLDER] grievance@example.com",
-  retention: "[PLACEHOLDER] 12 months"
+  grievanceOfficer: "Dr. Komall Sharma",
+  grievanceEmail: "elyxianstudio@gmail.com",
+  retention: "12 months"
 };
 
 /* ========================================================================== */
@@ -111,14 +100,13 @@ const CLINIC = {
   const phoneHref = `tel:${clean(CLINIC.phone).replace(/[^+\d]/g, "")}`;
   const links = {
     call: phoneHref,
+    landline: `tel:${CLINIC.landlineDial}`,
     whatsapp: whatsappUrl(`Hello ${CLINIC.name}, I have a question about visiting the clinic.`),
     email: `mailto:${clean(CLINIC.email)}`,
     grievance: `mailto:${clean(CLINIC.grievanceEmail)}`,
     map: clean(CLINIC.mapLinkUrl)
   };
   $$("[data-link]").forEach((a) => { a.href = links[a.dataset.link]; });
-
-  if (!CLINIC.demoMode) $$("[data-demo-strip]").forEach((el) => el.remove());
 
   /* Structured data ------------------------------------------------------
      The clinic (Dentist) on the home and booking pages, built from CLINIC.
@@ -157,8 +145,8 @@ const CLINIC = {
       areaServed: CLINIC.areaServed,
       hasMap: clean(CLINIC.mapLinkUrl),
       sameAs: CLINIC.profiles.filter((v) => v && !isPlaceholder(v)),
-      employee: { "@type": "Person", name: clean(CLINIC.doctorName), jobTitle: "Dentist" },
-      telephone: clean(CLINIC.phone).replace(/\s/g, ""),
+      employee: { "@type": "Person", name: clean(CLINIC.doctorName), jobTitle: `${CLINIC.doctorRole}, ${CLINIC.doctorSpecialisation}` },
+      telephone: [clean(CLINIC.phone).replace(/\s/g, ""), CLINIC.landlineDial],
       email: clean(CLINIC.email),
       address: {
         "@type": "PostalAddress",
@@ -168,15 +156,9 @@ const CLINIC = {
         postalCode: clean(CLINIC.postalCode),
         addressCountry: "IN"
       },
-      geo: {
-        "@type": "GeoCoordinates",
-        latitude: Number(clean(CLINIC.latitude)),
-        longitude: Number(clean(CLINIC.longitude))
-      },
       openingHours: clean(CLINIC.openingHoursSchema),
       priceRange: "$$",
       currenciesAccepted: "INR",
-      paymentAccepted: "Cash, Credit Card, Debit Card, UPI",
       availableService: [
         { "@type": "MedicalProcedure", name: "General Dentistry and Teeth Cleaning", url: siteUrl + "treatments/general-dentistry/" },
         { "@type": "MedicalProcedure", name: "Cosmetic Dentistry and Smile Design", url: siteUrl + "treatments/cosmetic-dentistry/" },
@@ -617,7 +599,6 @@ const CLINIC = {
     $("#result-message").textContent = message;
     $("#result-whatsapp").href = url;
     $("#result-email").href = `mailto:${clean(CLINIC.email)}?subject=${encodeURIComponent("Consultation request")}&body=${encodeURIComponent(message)}`;
-    $("#result-demo").hidden = whatsappReady;
     $("#result-sent-note").hidden = !whatsappReady;
     $("#copy-status").textContent = "";
     result.hidden = false;
@@ -630,11 +611,13 @@ const CLINIC = {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify({
+            _subject: `New consultation request: ${fields.name.value.trim()}`,
+            _template: "table",
             name: fields.name.value.trim(),
             phone: fields.phone.value.trim(),
             date: fields.date.value,
             time: fields.time.value,
-            treatment: fields.treatment.value,
+            treatment: fields.treatment.selectedOptions[0].text,
             message: fields.message.value.trim(),
             timestamp: new Date().toISOString()
           })
