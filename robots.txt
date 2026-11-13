@@ -4,5 +4,6 @@ Allow: /
 Disallow: /assets/clinic_photos/
 Disallow: /assets/logos/
 Disallow: /seo/
+Disallow: /.agents/
 
-Sitemap: https://www.example.com/sitemap.xml
+Sitemap: https://elyxianstudio.com/sitemap.xml

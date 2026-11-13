@@ -12,7 +12,7 @@ const CLINIC = {
   demoMode: true, // false removes the demo strip
 
   name: "Elyxian Dental & Smile Studio",
-  url: "[PLACEHOLDER] https://www.example.com/",
+  url: "https://elyxianstudio.com/",
 
   doctorName: "Dr. Komal Sharma",
   doctorQualifications: "[PLACEHOLDER] BDS, MDS (speciality), university",
@@ -173,7 +173,18 @@ const CLINIC = {
         latitude: Number(clean(CLINIC.latitude)),
         longitude: Number(clean(CLINIC.longitude))
       },
-      openingHours: clean(CLINIC.openingHoursSchema)
+      openingHours: clean(CLINIC.openingHoursSchema),
+      priceRange: "$$",
+      currenciesAccepted: "INR",
+      paymentAccepted: "Cash, Credit Card, Debit Card, UPI",
+      availableService: [
+        { "@type": "MedicalProcedure", name: "General Dentistry and Teeth Cleaning", url: siteUrl + "treatments/general-dentistry/" },
+        { "@type": "MedicalProcedure", name: "Cosmetic Dentistry and Smile Design", url: siteUrl + "treatments/cosmetic-dentistry/" },
+        { "@type": "MedicalProcedure", name: "Dental Implants", url: siteUrl + "treatments/dental-implants/" },
+        { "@type": "MedicalProcedure", name: "Orthodontics and Clear Aligners", url: siteUrl + "treatments/braces-and-aligners/" },
+        { "@type": "MedicalProcedure", name: "Root Canal Treatment (RCT)", url: siteUrl + "treatments/root-canal-treatment/" },
+        { "@type": "MedicalProcedure", name: "Pediatric and Children's Dentistry", url: siteUrl + "treatments/childrens-dentistry/" }
+      ]
     });
   }
 
