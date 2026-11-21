@@ -346,7 +346,7 @@ html:not(.js) .t-close { display: none; }
 /* Form. Without JS it would submit details into the URL, so it stays hidden. */
 .form { display: grid; gap: var(--s5); }
 html:not(.js) .form { display: none; }
-.field { display: grid; gap: var(--s2); min-width: 0; }
+.field { display: grid; gap: var(--s2); min-width: 0; align-content: start; }
 .field-pair { display: grid; gap: var(--s5); }
 @media (min-width: 36rem) { .field-pair { grid-template-columns: 1fr 1fr; } }
 .field label, .label-text { font-weight: 500; font-size: 1rem; }
