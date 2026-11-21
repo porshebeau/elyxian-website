@@ -26,17 +26,16 @@ const CLINIC = {
   landlineDial: "+911145080328",
   whatsapp: "919311132530", // digits with country code (e.g. 919810000000)
   email: "elyxianstudio@gmail.com",
-  // Every booking request is also emailed to the clinic through FormSubmit.
+  // Every booking request is emailed to the clinic through FormSubmit (WhatsApp is optional, offered afterwards).
   // The first request triggers a one-time activation email to the address above: click the link in it.
   submitWebhookUrl: "https://formsubmit.co/ajax/elyxianstudio@gmail.com",
 
   hours: [
-    { days: "Monday to Saturday", time: "10:00 am to 7:00 pm" },
-    { days: "Sunday", time: "Closed" }
+    { days: "Monday to Sunday", time: "9:00 am to 7:00 pm" }
   ],
-  openingHoursSchema: "Mo-Sa 10:00-19:00", // same hours, for search engines
-  closedDays: [0], // 0 = Sunday ... 6 = Saturday; the date field rejects these
-  timeWindows: ["Morning (10 am to 1 pm)", "Afternoon (1 pm to 4 pm)", "Evening (4 pm to 7 pm)"],
+  openingHoursSchema: "Mo-Su 09:00-19:00", // same hours, for search engines
+  closedDays: [], // e.g. [0] for Sunday; 0 = Sunday ... 6 = Saturday; the date field rejects these
+  timeWindows: ["Morning (9 am to 1 pm)", "Afternoon (1 pm to 4 pm)", "Evening (4 pm to 7 pm)"],
 
   metro: "Lajpat Nagar Metro (Violet and Pink Lines)",
   mapEmbedUrl: "https://www.google.com/maps?q=G-6+Basement,+Lajpat+Nagar+3,+New+Delhi+110024&output=embed",
@@ -47,7 +46,10 @@ const CLINIC = {
   // For search engines only (structured data). List the clinic's public profiles:
   // Google Business Profile, Practo, Justdial, Instagram and so on.
   areaServed: ["Lajpat Nagar", "South Delhi", "New Delhi"],
-  profiles: [],
+  profiles: [
+    "https://www.google.com/search?kgmid=/g/11nvw5q685", // Google Business Profile (knowledge graph ID)
+    "https://www.instagram.com/elyxianstudio/"
+  ],
 
   grievanceOfficer: "Dr. Komall Sharma",
   grievanceEmail: "elyxianstudio@gmail.com",
@@ -526,7 +528,7 @@ const CLINIC = {
       if (fields.date.value === today) {
         const h = now.getHours();
         if (v.startsWith("Morning") && h >= 13) {
-          return "Morning hours (10 am to 1 pm) have passed for today. Please pick an afternoon or evening time.";
+          return "Morning hours (9 am to 1 pm) have passed for today. Please pick an afternoon or evening time.";
         }
         if (v.startsWith("Afternoon") && h >= 16) {
           return "Afternoon hours (1 pm to 4 pm) have passed for today. Please pick an evening time.";
@@ -586,8 +588,49 @@ const CLINIC = {
     return lines.join("\n");
   }
 
-  form.addEventListener("submit", (e) => {
+  const submitBtn = $("#submit-btn");
+  let sending = false;
+
+  // Email the request to the clinic through FormSubmit. Resolves true only when FormSubmit confirms.
+  // (Until the clinic clicks the one-time activation link FormSubmit emails them, it answers success: "false".)
+  async function emailRequest(message) {
+    if (!CLINIC.submitWebhookUrl || isPlaceholder(CLINIC.submitWebhookUrl)) return false;
+    const date = parseDate(fields.date.value).toLocaleDateString("en-IN", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(clean(CLINIC.submitWebhookUrl), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          _subject: `New consultation request: ${fields.name.value.trim()}`,
+          _template: "table",
+          _captcha: "false",
+          Name: fields.name.value.trim(),
+          Mobile: fields.phone.value.trim(),
+          "Preferred date": date,
+          "Preferred time": fields.time.value,
+          "Interested in": fields.treatment.selectedOptions[0].text,
+          Notes: fields.message.value.trim() || "(none)",
+          "Reply on WhatsApp": `https://wa.me/${fields.phone.value.replace(/\D/g, "").replace(/^(\d{10})$/, "91$1")}`
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      return res.ok && String(data.success) === "true";
+    } catch (err) {
+      console.warn("Email submit failed:", err);
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (sending) return;
     const invalid = Object.keys(rules).filter((key) => !check(key));
     if (invalid.length) {
       fields[invalid[0]].focus();
@@ -595,49 +638,40 @@ const CLINIC = {
     }
 
     const message = buildMessage();
-    const url = whatsappUrl(message);
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.setAttribute("aria-busy", "true");
+    submitBtn.textContent = "Sending…";
+
+    const sent = await emailRequest(message);
+
+    sending = false;
+    submitBtn.disabled = false;
+    submitBtn.removeAttribute("aria-busy");
+    submitBtn.textContent = "Send request";
+
     $("#result-message").textContent = message;
-    $("#result-whatsapp").href = url;
+    $("#result-whatsapp").href = whatsappUrl(message);
     $("#result-email").href = `mailto:${clean(CLINIC.email)}?subject=${encodeURIComponent("Consultation request")}&body=${encodeURIComponent(message)}`;
-    $("#result-sent-note").hidden = !whatsappReady;
     $("#copy-status").textContent = "";
+
+    if (sent) {
+      $("#result-title").textContent = "Request sent";
+      $("#result-note").textContent = `Thank you. The clinic has your request and will contact you on ${fields.phone.value.trim()} to confirm a time. For a quicker reply, you can also message them on WhatsApp.`;
+      $("#result-whatsapp").className = "btn btn--ghost";
+      $("#result-whatsapp").lastChild.textContent = "Also message on WhatsApp";
+      $("#result-email").hidden = true;
+      try { localStorage.removeItem("elyxian_booking_draft"); } catch (_) {}
+      form.reset();
+    } else {
+      $("#result-title").textContent = "We couldn’t send your request";
+      $("#result-note").textContent = "Something went wrong on our side, and your details have not reached the clinic yet. Please send them on WhatsApp or by email using the buttons below. Your message is already written out.";
+      $("#result-whatsapp").className = "btn btn--primary";
+      $("#result-whatsapp").lastChild.textContent = "Send on WhatsApp";
+      $("#result-email").hidden = false;
+    }
     result.hidden = false;
     result.focus();
-
-    // Send to optional background webhook if configured (prevents lead loss)
-    if (CLINIC.submitWebhookUrl && !isPlaceholder(CLINIC.submitWebhookUrl)) {
-      try {
-        fetch(clean(CLINIC.submitWebhookUrl), {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify({
-            _subject: `New consultation request: ${fields.name.value.trim()}`,
-            _template: "table",
-            name: fields.name.value.trim(),
-            phone: fields.phone.value.trim(),
-            date: fields.date.value,
-            time: fields.time.value,
-            treatment: fields.treatment.selectedOptions[0].text,
-            message: fields.message.value.trim(),
-            timestamp: new Date().toISOString()
-          })
-        }).catch((err) => console.warn("Webhook submit failed:", err));
-      } catch (_) {}
-    }
-
-    // Clear saved draft on successful submit
-    try { localStorage.removeItem("elyxian_booking_draft"); } catch (_) {}
-
-    // Open WhatsApp smoothly
-    if (whatsappReady) {
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (isMobile) {
-        window.location.href = url;
-      } else {
-        const win = window.open(url, "_blank", "noopener");
-        if (!win) window.location.href = url;
-      }
-    }
   });
 
   $("#copy-message").addEventListener("click", async () => {

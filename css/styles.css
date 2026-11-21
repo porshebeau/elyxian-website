@@ -369,7 +369,7 @@ input:hover, select:hover, textarea:hover { border-color: var(--ink); }
 [aria-invalid="true"] { border-color: var(--error); box-shadow: inset 0 0 0 1px var(--error); }
 .error { color: var(--error); font-size: var(--t-small); font-weight: 500; }
 .error::before { content: "! "; font-weight: 700; }
-.error[hidden] { display: none; }
+.error[hidden], .btn[hidden] { display: none; }
 
 .consent { padding: var(--s5); background: var(--paper-deep); border-radius: 1rem; display: grid; gap: var(--s4); }
 .consent-notice { font-size: var(--t-small); line-height: 1.6; color: var(--ink-soft); }
